@@ -6,9 +6,9 @@ Usage:
 Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
-import settings
-import logging
-import menuParser as mp
+import logging, shelve
+import menu, money
+from collections import defaultdict
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 # Enable logging
@@ -17,51 +17,89 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
+# Needed constants
+# Telegram bot token
+TOKEN= ""
+# file to store users data
+FILE = "users.dat"
+
 # Bot command handlers
-def start(bot, update):
-	if(settings.LAUNCHED):
-		update.message.reply_text('Je suis déjà à votre service !')
-	else:
-		update.message.reply_text('Bonjour, je vous donnerai le menu lorsque vous me le demanderez.')
-		settings.LAUNCHED = True
-
-def stop(bot, update):
-	if(settings.LAUNCHED):
-		update.message.reply_text("D'accord, je me tais")
-		settings.LAUNCHED = False
-	else:
-		update.message.reply_text("Mais je n'ai rien fait !!!")
-
 def help(bot, update):
-	update.message.reply_text('/menu: affiche le menu du jour')
+	update.message.reply_text("/menu: affiche le menu du jour")
 
-def menu(bot, update):
-	if(settings.LAUNCHED):
-		menu = mp.getMenu()
-		if (menu):
-			output = mp.parseMenu(menu)
-			if(output != ""):
-				update.message.reply_text("Le Menu du jour est : \n" + output, quote=False)
+def display_menu(bot, update):
+	response = menu.getMenu()
+	if (response):
+		output = menu.parseMenu(response)
+		if(output != ""):
+			update.message.reply_text("Le Menu du jour est : \n" + output, quote=False)
+		else:
+			update.message.reply_text("Il n'y a pas de menu pour aujourd'hui :'( \n", quote=False)
+
+def display_sold(bot, update):
+	with shelve.open(FILE) as users:
+		if(str(update.message.from_user.id) in users):
+			response = money.getMoney(users[str(update.message.from_user.id)], users[update.message.from_user.username])
+			if(response):
+				output = money.parseMoney(response)
+				update.message.reply_text("Bonjour " + update.message.from_user.first_name + "\n" + output, quote=False)
+		else:
+			update.message.reply_text(update.message.from_user.first_name + " tu n'es pas encore enregistré pour avoir ton solde.\nTu peux le faire avec la commande /addme", quote=False)
+
+	users.close()
+
+def register_sold(bot, update):
+	with shelve.open(FILE) as users:
+		if(str(update.message.from_user.id) in users):
+			update.message.reply_text("Arrête " + update.message.from_user.first_name + ", tu t'es déjà enregistré pour avoir ton solde.", quote=False)
+		else:
+			badge_id, badge_name = badge_split(update.message.text)
+			if(badge_id == 0 and badge_name == 0):
+				update.message.reply_text("Enfin " + update.message.from_user.first_name + ", fait un effort! Usage : /addme IdBadge Nom Prénom", quote=False)
 			else:
-				update.message.reply_text("Il n'y a pas de menu pour aujourd'hui :'( \n", quote=False)
+				users[str(update.message.from_user.id)] = str(badge_id)
+				users[update.message.from_user.username] = badge_name
+				update.message.reply_text("Bien joué " + update.message.from_user.first_name + "! Tu es bien enregistré en base. Tu peux désormais demander ton solde avec la commande /money", quote=False)
+			
+	users.close()
+
+def unregister_sold(bot, update):
+	with shelve.open(FILE) as users:
+		if(str(update.message.from_user.id) in users):
+			del users[str(update.message.from_user.id)] 
+			del users[update.message.from_user.username] 
+			update.message.reply_text(update.message.from_user.first_name + " tes identifiants pour ton solde ont été supprimés de la base.", quote=False)
+		else:
+			update.message.reply_text("Aucune trace de " + update.message.from_user.first_name + " dans la base !", quote=False)
+	users.close()
 
 # bot error handler
 def error(bot, update, error):
 	logger.warn('Update "%s" caused error "%s"' % (update, error))
 
+# Split message into id and name
+def badge_split(message):
+	badge = message.split()
+	if(len(badge) < 4):
+		return 0, 0
+	else:
+		card = badge[1]
+		name = ' '.join(badge[2:])
+		return card,name
 
 def main():
 	# Create the EventHandler and pass it your bot's token.
-	updater = Updater(settings.TOKEN)
+	updater = Updater(TOKEN)
 
 	# Get the dispatcher to register handlers
 	dp = updater.dispatcher
 
 	# on different commands - answer in Telegram
-	dp.add_handler(CommandHandler("start", start))
-	dp.add_handler(CommandHandler("stop", stop))
 	dp.add_handler(CommandHandler("help", help))
-	dp.add_handler(CommandHandler("menu", menu))
+	dp.add_handler(CommandHandler("menu", display_menu))
+	dp.add_handler(CommandHandler("money", display_sold))
+	dp.add_handler(CommandHandler("addme", register_sold))
+	dp.add_handler(CommandHandler("forgetme", unregister_sold))
 
 	# log all errors
 	dp.add_error_handler(error)

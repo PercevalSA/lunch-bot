@@ -5,21 +5,17 @@
 import requests
 from html.parser import HTMLParser
 
-menu = ""
-
 # Class to parse menu
-class MyHTMLParser(HTMLParser):
+class MenuParser(HTMLParser):
 
 	def __init__(self, *args, **kwargs):
-		global menu
+		self.menu = ""
 		self.plat = False
 		self.prix = False
-		menu = ""
 
-		super(MyHTMLParser, self).__init__(*args, **kwargs)
+		super(MenuParser, self).__init__(*args, **kwargs)
 
 	def handle_starttag(self, tag, attrs):
-		global menu
 
 		if(tag == "span"):
 			try:
@@ -33,17 +29,17 @@ class MyHTMLParser(HTMLParser):
 
 		if(tag == "div" and attrs[0][0] == "id"):
 			if(attrs[0][1] == "collapse1"):
-				menu = menu +"\n## Entrées ##\n"
+				self.menu = self.menu +"\n## Entrées ##\n"
 			if(attrs[0][1] == "collapse2"):
-				menu = menu +"\n## Plats du jour ##\n"
+				self.menu = self.menu +"\n## Plats du jour ##\n"
 			if(attrs[0][1] == "collapse10"):
-				menu = menu +"\n## Plats à thème ##\n"
+				self.menu = self.menu +"\n## Plats à thème ##\n"
 			if(attrs[0][1] == "collapse27"):
-				menu = menu +"\n## Grillades viande ##\n"
+				self.menu = self.menu +"\n## Grillades viande ##\n"
 			if(attrs[0][1] == "collapse11"):
-				menu = menu +"\n## Légumes ##\n"
+				self.menu = self.menu +"\n## Légumes ##\n"
 			if(attrs[0][1] == "collapse22"):
-				menu = menu +"\n## Desserts ##\n"
+				self.menu = self.menu +"\n## Desserts ##\n"
 
 	def handle_endtag(self, tag):
 		if(tag == "span"):
@@ -51,20 +47,23 @@ class MyHTMLParser(HTMLParser):
 			self.prix = False	
 
 	def handle_data(self, data):
-		global menu
 
 		if(self.plat):
-			menu = menu + " * " + ' '.join(data.split())
+			self.menu = self.menu + " * " + ' '.join(data.split())
 		if(self.prix):
-			menu = menu + " : " + ' '.join(data.split()) + "\n"
+			self.menu = self.menu + " : " + ' '.join(data.split()) + "\n"
+
+	def getMenu(self):
+		return self.menu
 
 
 def getMenu( day="Today" ):
-
+	# TO DO : implement other days of the week
 	if (day == "Today"):
 		url = "http://www.aspp.fr/app.php/restaurants/28"
 
 		response = requests.get(url)
+		response.encoding = 'utf-8'
 
 		if response.status_code == 200:
 			return response.text
@@ -72,6 +71,6 @@ def getMenu( day="Today" ):
 			return null
 
 def parseMenu( text ):
-	parser = MyHTMLParser()
+	parser = MenuParser()
 	parser.feed(text)
-	return menu
+	return parser.getMenu()
