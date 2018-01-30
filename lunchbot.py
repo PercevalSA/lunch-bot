@@ -23,9 +23,19 @@ TOKEN= ""
 # file to store users data
 FILE = "users.dat"
 
+welcome_message = """Bonjour, je m'appelle Franklin, je peux t'afficher ton solde
+restant auprès du restaurant de la tour Franklin.\n
+Pour t'enregistrer et consulter ton solde tu dois m'envoyer: /addme BadgeID Nom Prénom
+Tu trouveras ton ID de badge en haut d'un ticket de caisse du restaurant
+à coté de la mention 'Badge'. Tu pourras alors me demander ton solde restant avec /money\n
+Bon Appétit!\n
+PS: Si tu veux supprimer tes données personnelles, tu peux le faire avec
+/forgetme. Mais attention je ne pourrais plus t'indiquer ton solde!"""
+
 # Bot command handlers
-def help(bot, update):
-	update.message.reply_text("/menu: affiche le menu du jour")
+
+def welcome(bot, update):
+	update.message.reply_text(welcome_message, quote=False)
 
 def display_menu(bot, update):
 	response = menu.getMenu()
@@ -44,7 +54,7 @@ def display_sold(bot, update):
 				output = money.parseMoney(response)
 				update.message.reply_text("Bonjour " + update.message.from_user.first_name + "\n" + output, quote=False)
 		else:
-			update.message.reply_text(update.message.from_user.first_name + " tu n'es pas encore enregistré pour avoir ton solde.\nTu peux le faire avec la commande /addme", quote=False)
+			update.message.reply_text(update.message.from_user.first_name + " tu n'es pas encore enregistré pour avoir ton solde.\nTu peux t'enregistrer avec la commande /addme BadgeID Nom Prénom", quote=False)
 
 	users.close()
 
@@ -95,7 +105,7 @@ def main():
 	dp = updater.dispatcher
 
 	# on different commands - answer in Telegram
-	dp.add_handler(CommandHandler("help", help))
+	dp.add_handler(CommandHandler("start", welcome))
 	dp.add_handler(CommandHandler("menu", display_menu))
 	dp.add_handler(CommandHandler("money", display_sold))
 	dp.add_handler(CommandHandler("addme", register_sold))

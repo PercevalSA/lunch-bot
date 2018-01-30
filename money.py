@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 
+import re
 import requests
 from html.parser import HTMLParser
 
@@ -24,7 +25,7 @@ class MoneyParser(HTMLParser):
 				pass
 
 		if(tag == "td" and self.keep):
-			self.solde = self.solde + " : "
+			self.solde = self.solde + ": "
 
 	def handle_endtag(self, tag):
 		if(tag == "tr" and self.keep):
@@ -33,7 +34,8 @@ class MoneyParser(HTMLParser):
 
 	def handle_data(self, data):
 		if(self.keep):
-			self.solde = self.solde + ' '.join(data.split())
+			self.solde += data
+			self.solde = re.sub('\s+', ' ', self.solde)
 
 	def getSolde(self):
 		return self.solde
@@ -41,7 +43,7 @@ class MoneyParser(HTMLParser):
 def getMoney( card_id, name ):
 
 	url = "https://www.e-chargement.com/identif_badge.Asp"
-	payload = {'badge_div': '23011', 'badge_number': card_id, 'badge_nom': name}
+	payload = {'badge_div': '8776', 'badge_number': card_id, 'badge_nom': name}
 	response = requests.post(url, data=payload)
 	response.encoding = 'utf-8'
 	
