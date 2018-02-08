@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-"""
-Usage:
-Press Ctrl-C on the command line or send a signal to the process to stop the
-bot.
-"""
+
+# TODO : migrate from shelve to SQLite3
 import logging, shelve
 import menu, money
+from random import choice
+from dikkenek import citations
 from collections import defaultdict
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -25,10 +24,11 @@ FILE = "users.dat"
 
 welcome_message = """Bonjour, je m'appelle Franklin, je peux t'afficher ton solde
 restant auprès du restaurant de la tour Franklin.\n
-Pour t'enregistrer et consulter ton solde tu dois m'envoyer: /addme BadgeID Nom Prénom
-Tu trouveras ton ID de badge en haut d'un ticket de caisse du restaurant
-à coté de la mention 'Badge'. Tu pourras alors me demander ton solde restant avec /money\n
-Bon Appétit!\n
+Pour t'enregistrer et consulter ton solde tu dois m'envoyer:
+/addme BadgeID Nom Prénom
+Tu trouveras ton ID de badge en haut d'un ticket de caisse du restaurant à coté
+de la mention 'Badge'. Tu pourras alors me demander ton solde restant avec
+/money\nBon Appétit!\n
 PS: Si tu veux supprimer tes données personnelles, tu peux le faire avec
 /forgetme. Mais attention je ne pourrais plus t'indiquer ton solde!"""
 
@@ -37,51 +37,83 @@ PS: Si tu veux supprimer tes données personnelles, tu peux le faire avec
 def welcome(bot, update):
 	update.message.reply_text(welcome_message, quote=False)
 
+def hello(bot, update):
+	update.message.reply_text(text=choice(citations), quote=False)
+
 def display_menu(bot, update):
+	message = ""
 	response = menu.getMenu()
+
 	if (response):
 		output = menu.parseMenu(response)
 		if(output != ""):
-			update.message.reply_text("Le Menu du jour est : \n" + output, quote=False)
+			message = "Le Menu du jour est : \n" + output
 		else:
-			update.message.reply_text("Il n'y a pas de menu pour aujourd'hui :'( \n", quote=False)
+			message = "Il n'y a pas de menu pour aujourd'hui :'( \n"
+
+	update.message.reply_text(message, quote=False)
 
 def display_sold(bot, update):
+	message = ""
+
 	with shelve.open(FILE) as users:
 		if(str(update.message.from_user.id) in users):
-			response = money.getMoney(users[str(update.message.from_user.id)], users[update.message.from_user.username])
+			response = money.getMoney(users[str(update.message.from_user.id)],
+				users[update.message.from_user.username])
+
 			if(response):
-				output = money.parseMoney(response)
-				update.message.reply_text("Bonjour " + update.message.from_user.first_name + "\n" + output, quote=False)
+				output = str(money.parseMoney(response))
+				message = "Bonjour " + update.message.from_user.first_name + "\n" + output
+			else:
+				message = "Désolé " + update.message.from_user.first_name
+				+ ", impossible de récupérer ton solde..."
 		else:
-			update.message.reply_text(update.message.from_user.first_name + " tu n'es pas encore enregistré pour avoir ton solde.\nTu peux t'enregistrer avec la commande /addme BadgeID Nom Prénom", quote=False)
+			message = update.message.from_user.first_name
+			+ " tu n'es pas encore enregistré pour avoir ton solde.\n"
+			+ "Tu peux t'enregistrer avec la commande /addme BadgeID Nom Prénom"
 
 	users.close()
+	update.message.reply_text(message, quote=False)
+
 
 def register_sold(bot, update):
+	message = ""
+
 	with shelve.open(FILE) as users:
 		if(str(update.message.from_user.id) in users):
-			update.message.reply_text("Arrête " + update.message.from_user.first_name + ", tu t'es déjà enregistré pour avoir ton solde.", quote=False)
+			message = "Arrête " + update.message.from_user.first_name 
+			+ ", tu t'es déjà enregistré pour avoir ton solde."
 		else:
 			badge_id, badge_name = badge_split(update.message.text)
+
 			if(badge_id == 0 and badge_name == 0):
-				update.message.reply_text("Enfin " + update.message.from_user.first_name + ", fait un effort! Usage : /addme IdBadge Nom Prénom", quote=False)
+				message = "Enfin " + update.message.from_user.first_name
+				+ ", fait un effort! Usage : /addme IdBadge Nom Prénom"
 			else:
 				users[str(update.message.from_user.id)] = str(badge_id)
 				users[update.message.from_user.username] = badge_name
-				update.message.reply_text("Bien joué " + update.message.from_user.first_name + "! Tu es bien enregistré en base. Tu peux désormais demander ton solde avec la commande /money", quote=False)
-			
+				message = "Bien joué " + update.message.from_user.first_name
+				+ "! Tu es bien enregistré en base. Tu peux désormais demander "
+				+ "ton solde avec la commande /money"
+
 	users.close()
+	update.message.reply_text(message, quote=False)
 
 def unregister_sold(bot, update):
+	message = ""
+
 	with shelve.open(FILE) as users:
 		if(str(update.message.from_user.id) in users):
 			del users[str(update.message.from_user.id)] 
 			del users[update.message.from_user.username] 
-			update.message.reply_text(update.message.from_user.first_name + " tes identifiants pour ton solde ont été supprimés de la base.", quote=False)
+			message = update.message.from_user.first_name 
+			+ " tes identifiants pour ton solde ont été supprimés de la base."
 		else:
-			update.message.reply_text("Aucune trace de " + update.message.from_user.first_name + " dans la base !", quote=False)
+			message = "Aucune trace de " + update.message.from_user.first_name
+			+ " dans la base !"
+
 	users.close()
+	update.message.reply_text(message, quote=False)
 
 # bot error handler
 def error(bot, update, error):
@@ -106,6 +138,7 @@ def main():
 
 	# on different commands - answer in Telegram
 	dp.add_handler(CommandHandler("start", welcome))
+	dp.add_handler(CommandHandler("bonjour", hello))
 	dp.add_handler(CommandHandler("menu", display_menu))
 	dp.add_handler(CommandHandler("money", display_sold))
 	dp.add_handler(CommandHandler("addme", register_sold))
