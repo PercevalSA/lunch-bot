@@ -63,14 +63,15 @@ def display_sold(bot, update):
 
 			if(response):
 				output = str(money.parseMoney(response))
-				message = "Bonjour " + update.message.from_user.first_name + "\n" + output
+				message = "Bonjour " + update.message.from_user.first_name\
+				+ "\n" + output
 			else:
-				message = "Désolé " + update.message.from_user.first_name
+				message = "Désolé " + update.message.from_user.first_name\
 				+ ", impossible de récupérer ton solde..."
 		else:
-			message = update.message.from_user.first_name
-			+ " tu n'es pas encore enregistré pour avoir ton solde.\n"
-			+ "Tu peux t'enregistrer avec la commande /addme BadgeID Nom Prénom"
+			message = update.message.from_user.first_name\
+			+ " tu n'es pas encore enregistré pour avoir ton solde.\n"\
+			+ "Tu peux t'enregistrer avec la commande /addme BadgeID Nom Prénom"\
 
 	users.close()
 	update.message.reply_text(message, quote=False)
@@ -81,20 +82,20 @@ def register_sold(bot, update):
 
 	with shelve.open(FILE) as users:
 		if(str(update.message.from_user.id) in users):
-			message = "Arrête " + update.message.from_user.first_name 
+			message = "Arrête " + update.message.from_user.first_name\
 			+ ", tu t'es déjà enregistré pour avoir ton solde."
 		else:
 			badge_id, badge_name = badge_split(update.message.text)
 
 			if(badge_id == 0 and badge_name == 0):
-				message = "Enfin " + update.message.from_user.first_name
+				message = "Enfin " + update.message.from_user.first_name\
 				+ ", fait un effort! Usage : /addme IdBadge Nom Prénom"
 			else:
 				users[str(update.message.from_user.id)] = str(badge_id)
 				users[update.message.from_user.username] = badge_name
-				message = "Bien joué " + update.message.from_user.first_name
-				+ "! Tu es bien enregistré en base. Tu peux désormais demander "
-				+ "ton solde avec la commande /money"
+				message = "Bien joué " + update.message.from_user.first_name\
+				+ "! Tu es bien enregistré en base. Tu peux désormais demander"\
+				+ " ton solde avec la commande /money"
 
 	users.close()
 	update.message.reply_text(message, quote=False)
@@ -106,10 +107,10 @@ def unregister_sold(bot, update):
 		if(str(update.message.from_user.id) in users):
 			del users[str(update.message.from_user.id)] 
 			del users[update.message.from_user.username] 
-			message = update.message.from_user.first_name 
+			message = update.message.from_user.first_name\
 			+ " tes identifiants pour ton solde ont été supprimés de la base."
 		else:
-			message = "Aucune trace de " + update.message.from_user.first_name
+			message = "Aucune trace de " + update.message.from_user.first_name\
 			+ " dans la base !"
 
 	users.close()
