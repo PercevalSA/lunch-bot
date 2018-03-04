@@ -19,16 +19,20 @@ logger = logging.getLogger(__name__)
 # Needed constants
 # Telegram bot token
 TOKEN= ""
-# file to store users data
+
+# file to store users data, created with shelve : dict of users
+# keys : telegram ID
+# values : ['ID', 'Name Surname']
 FILE = "users.dat"
 
-welcome_message = """Bonjour, je m'appelle Franklin, je peux t'afficher ton solde
-restant auprès du restaurant de la tour Franklin.\n
+# text for start commmand
+welcome_message = """Bonjour, je m'appelle Franklin, je peux t'afficher ton \
+solde restant auprès du restaurant de la tour Franklin.\n
 Pour t'enregistrer et consulter ton solde tu dois m'envoyer:
 /addme BadgeID Nom Prénom
-Tu trouveras ton ID de badge en haut d'un ticket de caisse du restaurant à coté
-de la mention 'Badge'. Tu pourras alors me demander ton solde restant avec
-/money\nBon Appétit!\n
+Tu trouveras ton ID de badge, ton nom et ton prénom, en haut d'un ticket de \
+caisse du restaurant, à coté de la mention 'Badge'.
+Tu pourras alors me demander ton solde restant avec /money\nBon Appétit!\n
 PS: Si tu veux supprimer tes données personnelles, tu peux le faire avec
 /forgetme. Mais attention je ne pourrais plus t'indiquer ton solde!"""
 
@@ -71,7 +75,7 @@ def display_sold(bot, update):
 		else:
 			message = update.message.from_user.first_name\
 			+ " tu n'es pas encore enregistré pour avoir ton solde.\n"\
-			+ "Tu peux t'enregistrer avec la commande /addme BadgeID Nom Prénom"\
+			+ "Tu peux t'enregistrer avec la commande /addme BadgeID Nom Prénom"
 
 	users.close()
 	update.message.reply_text(message, quote=False)
