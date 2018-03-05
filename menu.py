@@ -3,74 +3,44 @@
 #
 
 import requests
-from html.parser import HTMLParser
+from bs4 import BeautifulSoup
+import datetime
 
-# Class to parse menu
-class MenuParser(HTMLParser):
+def get_menu():
 
-	def __init__(self, *args, **kwargs):
-		self.menu = ""
-		self.plat = False
-		self.prix = False
+    cookie_url  = "http://www.tourfranklin.eurest.fr"
+    menu_url    = "http://www.tourfranklin.eurest.fr/ajaxWidgetMenu.aspx"
+    # list of restaurants : tuple (name, id)
+    restaurants = [('Charpentier', 1983), ('Musée', 1985)]
 
-		super(MenuParser, self).__init__(*args, **kwargs)
+    # Get a legit Cookie
+    cookie_response = requests.head(cookie_url)
+    cookie_response.encoding = 'utf-8'
+    cookie_parts = cookie_response.headers['Set-Cookie'].split(' ')
+    cookie = ' '.join([cookie_parts[0], cookie_parts[3], cookie_parts[9]])
 
-	def handle_starttag(self, tag, attrs):
+    # Forge Requests
+    now = datetime.datetime.now()
+    headers = {'cookie': cookie}
 
-		if(tag == "span"):
-			try:
-				if(attrs[0][1] == "platNom"):
-					self.plat = True
-			
-				if(attrs[1][1] == "platPrix"):
-					self.prix = True
-			except IndexError:
-				pass
+    # Get menus
+    menus = ""
+    for restaurant in restaurants:
+        payload = {'day': now.strftime("%Y-%m-%d"), 'divId': '12108', 
+        'spsId': restaurant[1], 'widgetMenu': 'false'}
 
-		if(tag == "div" and attrs[0][0] == "id"):
-			if(attrs[0][1] == "collapse1"):
-				self.menu = self.menu +"\n## Entrées ##\n"
-			if(attrs[0][1] == "collapse2"):
-				self.menu = self.menu +"\n## Plats du jour ##\n"
-			if(attrs[0][1] == "collapse10"):
-				self.menu = self.menu +"\n## Plats à thème ##\n"
-			if(attrs[0][1] == "collapse27"):
-				self.menu = self.menu +"\n## Grillades viande ##\n"
-			if(attrs[0][1] == "collapse11"):
-				self.menu = self.menu +"\n## Légumes ##\n"
-			if(attrs[0][1] == "collapse22"):
-				self.menu = self.menu +"\n## Desserts ##\n"
+        response = requests.post(menu_url, headers=headers, data=payload)
+        response.encoding = 'utf-8'
 
-	def handle_endtag(self, tag):
-		if(tag == "span"):
-			self.plat = False
-			self.prix = False	
+        # Parsing
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
+            menu = soup.get_text("\n", strip=True)
+            menus += restaurant[0] + ' : ' + menu[27:] + '\n\n'
 
-	def handle_data(self, data):
+        else:
+            menus += "Désolé, je n'arrive pas à récupérer le menu du "\
+             + restaurant[0] +". Tu peux aller vérifier par toi même : "\
+             + cookie_url + '\n\n'
 
-		if(self.plat):
-			self.menu = self.menu + " * " + ' '.join(data.split())
-		if(self.prix):
-			self.menu = self.menu + " : " + ' '.join(data.split()) + "\n"
-
-	def getMenu(self):
-		return self.menu
-
-
-def getMenu( day="Today" ):
-	# TO DO : implement other days of the week
-	if (day == "Today"):
-		url = "http://www.aspp.fr/app.php/restaurants/28"
-
-		response = requests.get(url)
-		response.encoding = 'utf-8'
-
-		if response.status_code == 200:
-			return response.text
-		else:
-			return null
-
-def parseMenu( text ):
-	parser = MenuParser()
-	parser.feed(text)
-	return parser.getMenu()
+    return menus

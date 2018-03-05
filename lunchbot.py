@@ -45,17 +45,7 @@ def hello(bot, update):
 	update.message.reply_text(text=choice(citations), quote=False)
 
 def display_menu(bot, update):
-	message = ""
-	response = menu.getMenu()
-
-	if (response):
-		output = menu.parseMenu(response)
-		if(output != ""):
-			message = "Le Menu du jour est : \n" + output
-		else:
-			message = "Il n'y a pas de menu pour aujourd'hui :'( \n"
-
-	update.message.reply_text(message, quote=False)
+	update.message.reply_text(menu.get_menu(), quote=False)
 
 def display_sold(bot, update):
 	message = ""
