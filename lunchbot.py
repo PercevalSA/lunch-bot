@@ -52,19 +52,18 @@ def display_sold(bot, update):
 
 	with shelve.open(FILE) as users:
 		if(str(update.message.from_user.id) in users):
-			response = money.getMoney(users[str(update.message.from_user.id)],
+			response = money.get_money(users[str(update.message.from_user.id)],
 				users[update.message.from_user.username])
 
 			if(response):
-				output = str(money.parseMoney(response))
 				message = "Bonjour " + update.message.from_user.first_name\
-				+ "\n" + output
+				+ "\n" + response
 			else:
 				message = "Désolé " + update.message.from_user.first_name\
 				+ ", impossible de récupérer ton solde..."
 		else:
-			message = update.message.from_user.first_name\
-			+ " tu n'es pas encore enregistré pour avoir ton solde.\n"\
+			message = "Désolé " + update.message.from_user.first_name\
+			+ " mais tu n'es pas encore enregistré.e pour avoir ton solde.\n"\
 			+ "Tu peux t'enregistrer avec la commande /addme BadgeID Nom Prénom"
 
 	users.close()
@@ -77,7 +76,7 @@ def register_sold(bot, update):
 	with shelve.open(FILE) as users:
 		if(str(update.message.from_user.id) in users):
 			message = "Arrête " + update.message.from_user.first_name\
-			+ ", tu t'es déjà enregistré pour avoir ton solde."
+			+ ", tu t'es déjà enregistré.e pour avoir ton solde."
 		else:
 			badge_id, badge_name = badge_split(update.message.text)
 
@@ -88,7 +87,7 @@ def register_sold(bot, update):
 				users[str(update.message.from_user.id)] = str(badge_id)
 				users[update.message.from_user.username] = badge_name
 				message = "Bien joué " + update.message.from_user.first_name\
-				+ "! Tu es bien enregistré en base. Tu peux désormais demander"\
+				+ "! Tu es bien enregistré.e en base. Tu peux désormais demander"\
 				+ " ton solde avec la commande /money"
 
 	users.close()
