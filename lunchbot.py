@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 #
 
-# TODO : migrate from shelve to SQLite3
 import logging, shelve
-import menu, money
+import franklin
 from random import choice
 from dikkenek import citations
 from collections import defaultdict
@@ -23,17 +22,17 @@ TOKEN= ""
 # file to store users data, created with shelve : dict of users
 # keys : telegram ID
 # values : ['ID', 'Name Surname']
-FILE = "users.dat"
+FILE = "users"
 
 # text for start commmand
 welcome_message = """Bonjour, je m'appelle Franklin, je peux t'afficher ton \
-solde restant auprès du restaurant de la tour Franklin.\n
-Pour t'enregistrer et consulter ton solde tu dois m'envoyer:
+solde restant et le menu du restaurant Eurest de la tour Franklin à la défense.\n
+Pour t'enregistrer et consulter ton solde tu dois m'envoyer :
 /addme BadgeID Nom Prénom
 Tu trouveras ton ID de badge, ton nom et ton prénom, en haut d'un ticket de \
 caisse du restaurant, à coté de la mention 'Badge'.
 Tu pourras alors me demander ton solde restant avec /money\nBon Appétit!\n
-PS: Si tu veux supprimer tes données personnelles, tu peux le faire avec
+PS : Si tu veux supprimer tes données personnelles, tu peux le faire avec \
 /forgetme. Mais attention je ne pourrais plus t'indiquer ton solde!"""
 
 # Bot command handlers
@@ -45,14 +44,14 @@ def hello(bot, update):
 	update.message.reply_text(text=choice(citations), quote=False)
 
 def display_menu(bot, update):
-	update.message.reply_text(menu.get_menu(), quote=False)
+	update.message.reply_text(franklin.get_menu(), quote=False)
 
 def display_sold(bot, update):
 	message = ""
 
 	with shelve.open(FILE) as users:
 		if(str(update.message.from_user.id) in users):
-			response = money.get_money(users[str(update.message.from_user.id)],
+			response = franklin.get_money(users[str(update.message.from_user.id)],
 				users[update.message.from_user.username])
 
 			if(response):
