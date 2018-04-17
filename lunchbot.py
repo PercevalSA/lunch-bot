@@ -6,14 +6,16 @@ import logging, shelve
 import franklin
 from random import choice
 from dikkenek import citations
-from collections import defaultdict
 from telegram.ext import Updater, CommandHandler
 
 # Enable logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-	level=logging.INFO)
-
+logging.basicConfig(level=logging.INFO, 
+	format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+handler = logging.FileHandler('franklin.log')
+handler.setLevel(logging.INFO)
+logger.addHandler(handler)
 
 # Needed constants
 # Telegram bot token
@@ -24,7 +26,7 @@ TOKEN= ""
 # values : ['ID', 'Name Surname']
 FILE = "users"
 
-# text for start commmand
+# start commmand's speech
 welcome_message = """Bonjour, je m'appelle Franklin, je peux t'afficher ton \
 solde restant et le menu du restaurant Eurest de la tour Franklin à la défense.\n
 Pour t'enregistrer et consulter ton solde tu dois m'envoyer :
@@ -51,6 +53,15 @@ def display_sold(bot, update):
 
 	with shelve.open(FILE) as users:
 		if(str(update.message.from_user.id) in users):
+
+			# TGID TGNAME FID FNAME
+			log = "GET SOLD : {"\
+			+ str(update.message.from_user.id)\
+			+ ", " + str(update.message.from_user.username)\
+			+ ", " + str(users[str(update.message.from_user.id)])\
+			+ ", " + str(users[update.message.from_user.username]) + "}"
+			logger.info(log)
+
 			response = franklin.get_money(users[str(update.message.from_user.id)],
 				users[update.message.from_user.username])
 
@@ -89,6 +100,13 @@ def register_sold(bot, update):
 				+ "! Tu es bien enregistré.e en base. Tu peux désormais demander"\
 				+ " ton solde avec la commande /money"
 
+				# TGID TGNAME FID FNAME
+				log = "REGISTER : {"\
+				+ str(update.message.from_user.id)\
+				+ ", " + str(update.message.from_user.username)\
+				+ ", " + str(badge_id) + ", " + str(badge_name) + "}"
+				logger.info(log)
+
 	users.close()
 	update.message.reply_text(message, quote=False)
 
@@ -123,6 +141,8 @@ def badge_split(message):
 		return card,name
 
 def main():
+	logger.info('Starting Franklin')
+
 	# Create the EventHandler and pass it your bot's token.
 	updater = Updater(TOKEN)
 
@@ -147,7 +167,7 @@ def main():
 	# SIGTERM or SIGABRT. This should be used most of the time, since
 	# start_polling() is non-blocking and will stop the bot gracefully.
 	updater.idle()
-
+	logger.info('Stopping Franklin')
 
 if __name__ == '__main__':
 	main()

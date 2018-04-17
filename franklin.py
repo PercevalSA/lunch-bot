@@ -20,8 +20,9 @@ def get_money(card_id, name):
 		money = infos[1].text
 		date = infos[2].text
 
-		return  "Solde disponible sur votre compte : " + money\
+		message = "Solde disponible sur votre compte : " + money\
 		+ "\nDate et heure à laquelle est calculé votre solde : " + date
+		return message
 	else:
 		return null
 
@@ -60,7 +61,7 @@ def get_menu():
 
 		else:
 			menus += "Désolé, je n'arrive pas à récupérer le menu du "\
-			 + restaurant[0] +". Tu peux aller vérifier par toi même : "\
-			 + cookie_url + '\n\n'
+			+ restaurant[0] +". Tu peux aller vérifier par toi même : "\
+			+ cookie_url + '\n\n'
 
 	return menus

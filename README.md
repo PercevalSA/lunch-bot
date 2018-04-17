@@ -1,7 +1,7 @@
 # Lunchbot
 
 Lunchbot est un bot telegram qui permet de consulter le solde restant sur sa 
-carte et le menu du restaurant de la tour Franklin à la défense:
+carte ainsi que le menu du restaurant de la tour Franklin à la défense :
 [Eurest Franklin](http://www.tourfranklin.eurest.fr/home.aspx)
 
 *Lunchbot nécessite python3*
