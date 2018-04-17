@@ -1,4 +1,5 @@
 __pycache__/
 users.db
 backup.dat
+franklin.log
 *.html
