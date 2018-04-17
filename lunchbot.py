@@ -5,11 +5,11 @@
 import logging, shelve
 import franklin
 from random import choice
-from dikkenek import citations
-from telegram.ext import Updater, CommandHandler
+from flantier import citations
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 # Enable logging
-logging.basicConfig(level=logging.INFO, 
+logging.basicConfig(level=logging.WARN, 
 	format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -126,6 +126,12 @@ def unregister_sold(bot, update):
 	users.close()
 	update.message.reply_text(message, quote=False)
 
+def unknown_command(bot, update):
+	message = "Désolé " + update.message.from_user.first_name\
+	+ ", je n'ai pas compris. Je réponds aux commandes suivantes : "\
+	+ "/menu, /money, /addme, /forgetme, /bonjour"
+	update.message.reply_text(message, quote=False)
+
 # bot error handler
 def error(bot, update, error):
 	logger.warn('Update "%s" caused error "%s"' % (update, error))
@@ -157,6 +163,8 @@ def main():
 	dp.add_handler(CommandHandler("addme", register_sold))
 	dp.add_handler(CommandHandler("forgetme", unregister_sold))
 
+	# unkown commands
+	dp.add_handler(MessageHandler(Filters.all, unknown_command))
 	# log all errors
 	dp.add_error_handler(error)
 
