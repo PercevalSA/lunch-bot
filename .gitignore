@@ -3,3 +3,4 @@ users.db
 backup.dat
 franklin.log
 *.html
+.DS_Store

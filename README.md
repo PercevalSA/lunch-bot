@@ -17,19 +17,68 @@ de votre bot dans la variable `TOKEN`. Vous pouvez en demander un auprès du
 * Démarrez le bot : `python3 lunchbot.py`
 * Enjoy !
 
+## Installation complète
+
+* Créez un nouvel utilisateur :
+```bash
+sudo adduser tgbot # créer un utilisateur pour le bot
+sudo -s tgbot && cd /home/tgbot
+```
+* Installez lunchbot :
+```bash
+git clone https://github.com/PercevalSA/lunch-bot.git # clone le dépôt
+pip3 install --upgrade requests bs4 python-telegram-bot # installe les dépendances
+```
+* Modifiez le fichier `lunchbot.py` pour y jouter le
+[jeton](https://core.telegram.org/bots/api#authorizing-your-bot)
+de votre bot dans la variable `TOKEN`. Vous pouvez en demander un auprès du
+[botfather](http://telegram.me/botfather).
+
+* Ajoutez une tâche planifiée pour la mise à jour des soldes avec `sudo crontab -u tgbot -e` 
+et collez la ligne suivante :
+```
+0 8,16 * * * tgbot /usr/bin/python /opt/lunch-bot/update.py
+```
+* Ajouter le service du bot au système avec `sudo nano /etc/systemd/system/lunchbot.service`
+et collez le texte suivant :
+```
+[Unit]
+Description=Telegram bot who serves lunch menu and personnal balance
+After=network.target
+
+[Service]
+User=tgbot
+Group=tgbot
+WorkingDirectory=/home/tgbot/lunch-bot
+ExecStart=/usr/bin/python3 /home/tgbot/lunch-bot/lunchbot.py
+
+[Install]
+WantedBy=multi-user.target
+```
+* Activez le service
+```bash
+sudo systemctl enable lunchbot
+sudo systemctl start lunchbot
+```
+
+* Enjoy !
+
 ## Commandes
 
 * `/money` : consulter son solde
 * `/menu` : afficher le menu du jour
-* `/addme BadgeID NOM Prénom` s'enregistrer auprès du bot pour consulter
+* `/register BadgeID NOM Prénom` s'enregistrer auprès du bot pour consulter
 son solde (le BadgeID se trouve sur les tickets de caisse)
 * `/forgetme` : supprimer ses identifiants de la base
-* `/bonjour` : bonjour, une fois!
+* `/bonjour` : Habile !
+
+## Extra
+
+`migrate.py` permet d'envoyer un message directement à tous les utilisateurs du bot
+C'est utile notemment pour annoncer des mises à jours ou des maintenances.
 
 ## TO DO
 
-* Ajouter la consultation quotidienne unique et l'enregistrement du solde
-(~7h30) [performances]
-* Migrer de Shelve vers SQLite ?
 * Gestion des statistiques de consommation
 * Gestion du menu des autres jours de la semaine
+* ajout d'alerte sur le solde à partir d'un certain seuil

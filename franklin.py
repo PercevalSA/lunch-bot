@@ -6,10 +6,20 @@ import requests
 from bs4 import BeautifulSoup
 import datetime
 
+def check_user(card_id, name):
+	url = "https://www.e-chargement.com/identif_badge.asp"
+	payload = {'badge_div': '8776', 'badge_number': card_id, 'badge_nom': name}
+	response = requests.post(url, data=payload)
+	response.encoding = 'utf-8'
+
+	if "err" in response.url :
+		return False
+	else:
+		return True
 
 def get_money(card_id, name):
 
-	url = "https://www.e-chargement.com/identif_badge.Asp"
+	url = "https://www.e-chargement.com/identif_badge.asp"
 	payload = {'badge_div': '8776', 'badge_number': card_id, 'badge_nom': name}
 	response = requests.post(url, data=payload)
 	response.encoding = 'utf-8'
@@ -17,12 +27,10 @@ def get_money(card_id, name):
 	if response.status_code == 200:
 		soup = BeautifulSoup(response.text, 'html.parser')
 		infos = soup.find_all("td", { "class" : "bold" }) 
-		money = infos[1].text
+		money = float(infos[1].text[:-3].replace(",",".")) # -3 to delete €
 		date = infos[2].text
 
-		message = "Solde disponible sur votre compte : " + money\
-		+ "\nDate et heure à laquelle est calculé votre solde : " + date
-		return message
+		return money, date
 	else:
 		return null
 
