@@ -89,18 +89,21 @@ def force_update(bot, update):
 
 def register(bot, update):
 	message = ""
-	log = "REGISTER : "
-
+	log = "REGISTER : {" + str(update.message.from_user.id) + ", "\
+	+ str(update.message.from_user.username) + ", "
+	
 	if(get_user(update.message.from_user.id)):
 		message = "Arrête " + update.message.from_user.first_name\
 		+ ", tu t'es déjà enregistré.e pour avoir ton solde."
-	
+		log += "ERROR already exists"
 	else:
 			badge_id, badge_name = badge_split(update.message.text)
-
+			log += str(badge_id) + ", " + str(badge_name) + ", "
+			
 			if(badge_id == 0 and badge_name == 0):
 				message = "Enfin " + update.message.from_user.first_name\
 				+ ", fait un effort ! Usage : /register IdBadge Nom Prénom"
+				log += str(update.message.text)
 			else:
 
 				error = new_user(update.message.from_user.id, badge_id, badge_name)
@@ -121,10 +124,7 @@ def register(bot, update):
 					+ "Usage : /register IdBadge Nom Prénom"
 					log += "ERROR dont exist"
 
-	# TGID TGNAME FID FNAME
-	log += " : {" + str(update.message.from_user.id)\
-	+ ", " + str(update.message.from_user.username)\
-	+ ", " + str(badge_id) + ", " + str(badge_name) + "}"
+	log += "}"
 	logger.info(log)
 
 	update.message.reply_text(message, quote=False)
@@ -157,7 +157,8 @@ def unknown_command(bot, update):
 	+ "/menu, /money, /register, /forgetme, /bonjour"
 	update.message.reply_text(message, quote=False)
 
-	log = "UNKOWN COMMAND : {" + update.message.text + "}"
+	log = "UNKOWN COMMAND : {" + update.message.from_user.id + " : "\
+	+ update.message.text + "}"
 	logger.info(log)
 
 # bot error handler
