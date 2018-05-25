@@ -87,9 +87,9 @@ def delete_user(tg_id):
 
 		cursor.execute("DELETE FROM users WHERE tg_id=?", (tg_id,))
 		cursor.execute("DELETE FROM balances WHERE tg_id=?", (tg_id,))
-		
-		user = cursor.fetchone()
-		
+
+		db.commit()
+
 	except Exception as e:
 		db.rollback()
 		success = False
