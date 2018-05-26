@@ -5,7 +5,8 @@
 import sqlite3
 import franklin
 
-DB_FILE = "users.db"
+# use absolute path for update cron
+DB_FILE = "/home/tgbot/lunch-bot/users.db"
 
 #
 # USERS

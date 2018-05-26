@@ -83,8 +83,15 @@ def badge_split(message):
 		return card,name
 
 def force_update(bot, update):
-	message = "Ton solde a été mis à jour"
-	update_balance(update.message.from_user.id)
+	message = ""
+	if(get_user(update.message.from_user.id)):
+		message = "Ton solde a été mis à jour"
+		update_balance(update.message.from_user.id)
+	else:
+		message = "Désolé " + update.message.from_user.first_name\
+		+ " mais tu n'es pas encore enregistré.e pour avoir ton solde. "\
+		+ "Tu peux t'enregistrer avec la commande :\n/register BadgeID Nom Prénom"
+
 	update.message.reply_text(message, quote=False)
 
 def register(bot, update):
