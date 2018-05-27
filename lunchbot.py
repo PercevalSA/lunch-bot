@@ -15,7 +15,9 @@ logging.basicConfig(level=logging.INFO,
 	format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-handler = logging.FileHandler('franklin.log')
+handler = logging.FileHandler('lunchbot.log')
+formatter = logging.Formatter('%(asctime)s - %(message)s')
+handler.setFormatter(formatter)
 handler.setLevel(logging.INFO)
 logger.addHandler(handler)
 
@@ -42,6 +44,11 @@ PPS : Si tu veux supprimer tes données personnelles, tu peux le faire avec \
 def welcome(bot, update):
 	update.message.reply_text(welcome_message, quote=False)
 
+	log = "START : {"\
+	+ str(update.message.from_user.id) + ", "\
+	+ str(update.message.from_user.username) + "}"
+	logger.info(log)
+
 def hello(bot, update):
 	sounds_path = "kaamelott-soundboard/sounds/"
 	sounds_list = "sounds.json"
@@ -61,8 +68,12 @@ def hello(bot, update):
 def display_menu(bot, update):
 	update.message.reply_text(franklin.get_menu(), quote=False)
 
-def display_balance(bot, update):
+	log = "MENU : {"\
+	+ str(update.message.from_user.id) + ", "\
+	+ str(update.message.from_user.username) + "}"
+	logger.info(log)
 
+def display_balance(bot, update):
 	money, date = get_balance(update.message.from_user.id)
 
 	if(money != -1):
@@ -73,7 +84,6 @@ def display_balance(bot, update):
 		+ " mais tu n'es pas encore enregistré.e pour avoir ton solde. "\
 		+ "Tu peux t'enregistrer avec la commande :\n/register BadgeID Nom Prénom"
 
-	# TGID TGNAME FID FNAME
 	log = "GET BALANCE : {"\
 	+ str(update.message.from_user.id) + ", "\
 	+ str(update.message.from_user.username) + ", "\
@@ -150,7 +160,6 @@ def register(bot, update):
 def deregister(bot, update):
 	message = ""
 
-	# TGID TGNAME FID FNAME
 	log = "DEREGISTER : {"\
 	+ str(update.message.from_user.id)\
 	+ ", " + str(update.message.from_user.username)
