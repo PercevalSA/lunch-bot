@@ -173,6 +173,25 @@ def deregister(bot, update):
 
 	update.message.reply_text(message, quote=False)
 
+def subscribe(bot, update):
+	message = ""
+
+	# TGID TGNAME FID FNAME
+	log = "SUBSCRIBE : {"\
+	+ str(update.message.from_user.id)\
+	+ ", " + str(update.message.from_user.username)
+
+	if(get_user(update.message.from_user.id)):
+		# good
+	else:
+		message = "Désolé, impossible de créer une alarme car tu n'es pas enregistré.e. "\
+		+ "Tu peux le faire avec /register IdBadge Nom Prénom"
+
+	log += "}"
+	logger.info(log)
+
+	update.message.reply_text(message, quote=False)
+
 def unknown_command(bot, update):
 	message = "Désolé " + update.message.from_user.first_name\
 	+ ", je n'ai pas compris. Je réponds aux commandes suivantes : "\

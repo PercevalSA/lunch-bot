@@ -130,6 +130,11 @@ def update_balance(tg_id):
 	db.commit()
 	db.close()
 
+#
+# NOTIFICATIONS
+def subscribe(menu=False, low_sold=0):
+	#TODO
+	return -1
 
 #
 # Update all balances from all users
@@ -164,7 +169,14 @@ def db_init():
 			balance REAL,
 			last_update TEXT)
 		""")
-		# last_update DATE)
+
+		# notifications table
+		cursor.execute("""
+			CREATE TABLE IF NOT EXISTS notifications (
+			tg_id INTEGER PRIMARY KEY UNIQUE,
+			menu BOOLEAN,
+			low_sold REAL) # default = 0
+		""")
 
 		db.commit()
 
