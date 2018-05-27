@@ -1,6 +1,6 @@
 __pycache__/
-users.db
-backup.dat
-franklin.log
+*.db
+*.dat
+*.log*
 *.html
 .DS_Store

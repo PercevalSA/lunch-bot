@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 #
 
+import json
 import logging
-from random import choice
-from flantier import citations
 import franklin
 from dbconnector import *
+from random import choice
+from telegram import ChatAction
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 # Enable logging
@@ -42,7 +43,20 @@ def welcome(bot, update):
 	update.message.reply_text(welcome_message, quote=False)
 
 def hello(bot, update):
-	update.message.reply_text(text=choice(citations), quote=False)
+	sounds_path = "kaamelott-soundboard/sounds/"
+	sounds_list = "sounds.json"
+
+	sounds = json.load(open(sounds_path + sounds_list, 'r'))
+	sound = choice(sounds)
+	# ['character', 'episode', 'file', 'title']
+
+	audio_file = sounds_path + sound['file']
+	audio_title = sound['character'] + ' : ' + sound['title']
+
+	bot.send_chat_action(chat_id=update.message.from_user.id, 
+		action=ChatAction.UPLOAD_AUDIO, timeout=30)
+	bot.send_voice(chat_id=update.message.from_user.id,
+		voice=open(audio_file, 'rb'), caption=audio_title, timeout=30)
 
 def display_menu(bot, update):
 	update.message.reply_text(franklin.get_menu(), quote=False)
@@ -66,9 +80,6 @@ def display_balance(bot, update):
 	+ str(money) + ", "\
 	+ str(date) + "}"
 	logger.info(log)
-
-#		message = "Désolé " + update.message.from_user.first_name\
-#		+ ", impossible de récupérer ton solde..."
 
 	update.message.reply_text(message, quote=False)
 
@@ -98,7 +109,7 @@ def register(bot, update):
 	message = ""
 	log = "REGISTER : {" + str(update.message.from_user.id) + ", "\
 	+ str(update.message.from_user.username) + ", "
-	
+
 	if(get_user(update.message.from_user.id)):
 		message = "Arrête " + update.message.from_user.first_name\
 		+ ", tu t'es déjà enregistré.e pour avoir ton solde."
@@ -106,7 +117,7 @@ def register(bot, update):
 	else:
 			badge_id, badge_name = badge_split(update.message.text)
 			log += str(badge_id) + ", " + str(badge_name) + ", "
-			
+
 			if(badge_id == 0 and badge_name == 0):
 				message = "Enfin " + update.message.from_user.first_name\
 				+ ", fait un effort ! Usage : /register IdBadge Nom Prénom"
@@ -146,13 +157,11 @@ def deregister(bot, update):
 
 	if(delete_user(update.message.from_user.id)):
 		log += " SUCCESS" 
-		message = "Les identifiants de " + update.message.from_user.first_name\
-		+ " ont été supprimés de la base."
+		message = "Tes identifiants ont bien été supprimés de la base."
 	else:
 		message = "Impossible de supprimer ton compte. Peut-être que tu n'existes pas / plus"
 		log += " FAIL" 
 
-	# TGID TGNAME FID FNAME
 	log += "}"
 	logger.info(log)
 
