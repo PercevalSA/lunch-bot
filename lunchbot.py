@@ -56,12 +56,13 @@ def hello(bot, update, sounds_path="kaamelott-soundboard/sounds/"):
 	# ['character', 'episode', 'file', 'title']
 
 	audio_file = sounds_path + sound['file']
-	audio_title = sound['character'] + ' : ' + sound['title']
 
 	bot.send_chat_action(chat_id=update.message.from_user.id, 
 		action=ChatAction.UPLOAD_AUDIO, timeout=30)
 	bot.send_voice(chat_id=update.message.from_user.id,
-		voice=open(audio_file, 'rb'), caption=audio_title, timeout=30)
+		voice=open(audio_file, 'rb'), caption=sound['character'], timeout=30)
+
+	update.message.reply_text(text=sound['title'], quote=False)
 
 def ouiches(bot, update):
 	sounds_path = "ouich.es/sounds/"
