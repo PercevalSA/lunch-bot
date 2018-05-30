@@ -49,10 +49,8 @@ def welcome(bot, update):
 	+ str(update.message.from_user.username) + "}"
 	logger.info(log)
 
-def hello(bot, update):
-	sounds_path = "kaamelott-soundboard/sounds/"
+def hello(bot, update, sounds_path):
 	sounds_list = "sounds.json"
-
 	sounds = json.load(open(sounds_path + sounds_list, 'r'))
 	sound = choice(sounds)
 	# ['character', 'episode', 'file', 'title']
@@ -64,6 +62,14 @@ def hello(bot, update):
 		action=ChatAction.UPLOAD_AUDIO, timeout=30)
 	bot.send_voice(chat_id=update.message.from_user.id,
 		voice=open(audio_file, 'rb'), caption=audio_title, timeout=30)
+
+def ouiches(bot, update):
+	sounds_path = "ouich.es/sounds/"
+	hello(bot, update, sounds_path)
+
+def kaamelott(bot, update):
+	sounds_path = "kaamelott-soundboard/sounds/"
+	hello(bot, update, sounds_path)
 
 def display_menu(bot, update):
 	update.message.reply_text(franklin.get_menu(), quote=False)
@@ -205,7 +211,8 @@ def main():
 
 	# on different commands - answer in Telegram
 	dp.add_handler(CommandHandler("start", welcome))
-	dp.add_handler(CommandHandler("bonjour", hello))
+	dp.add_handler(CommandHandler("ouiches", ouiches))
+	dp.add_handler(CommandHandler("cepafo", kaamelott))
 	dp.add_handler(CommandHandler("menu", display_menu))
 	dp.add_handler(CommandHandler("money", display_balance))
 	dp.add_handler(CommandHandler("update", force_update))
