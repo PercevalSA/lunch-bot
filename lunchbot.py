@@ -49,7 +49,7 @@ def welcome(bot, update):
 	+ str(update.message.from_user.username) + "}"
 	logger.info(log)
 
-def hello(bot, update, sounds_path):
+def hello(bot, update, sounds_path="kaamelott-soundboard/sounds/"):
 	sounds_list = "sounds.json"
 	sounds = json.load(open(sounds_path + sounds_list, 'r'))
 	sound = choice(sounds)
@@ -211,6 +211,7 @@ def main():
 
 	# on different commands - answer in Telegram
 	dp.add_handler(CommandHandler("start", welcome))
+	dp.add_handler(CommandHandler("bonjour", hello))
 	dp.add_handler(CommandHandler("ouiches", ouiches))
 	dp.add_handler(CommandHandler("cepafo", kaamelott))
 	dp.add_handler(CommandHandler("menu", display_menu))

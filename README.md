@@ -8,7 +8,7 @@ carte ainsi que le menu du restaurant de la tour Franklin à la défense :
 
 ## Quick start
 
-* Clonez le dépôt : `git clone https://github.com/PercevalSA/lunch-bot.git`
+* Clonez le dépôt : `git clone --recurse-submodules https://github.com/PercevalSA/lunch-bot.git`
 * Installez les dépendances : `pip3 install --upgrade requests bs4 python-telegram-bot`
 * Modifiez le fichier `lunchbot.py` pour y jouter le
 [jeton](https://core.telegram.org/bots/api#authorizing-your-bot)
@@ -27,7 +27,7 @@ sudo adduser tgbot # créer un utilisateur pour le bot
 * Installez lunchbot :
 ```bash
 sudo -s tgbot && cd /home/tgbot
-git clone https://github.com/PercevalSA/lunch-bot.git # clone le dépôt
+git clone --recurse-submodules https://github.com/PercevalSA/lunch-bot.git # clone le dépôt
 pip3 install --upgrade requests bs4 python-telegram-bot # installe les dépendances
 ```
 
