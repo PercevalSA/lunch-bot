@@ -110,18 +110,6 @@ def badge_split(message):
 		name = ' '.join(badge[2:])
 		return card,name
 
-def force_update(bot, update):
-	message = ""
-	if(get_user(update.message.from_user.id)):
-		message = "Ton solde a été mis à jour"
-		update_balance(update.message.from_user.id)
-	else:
-		message = "Désolé " + update.message.from_user.first_name\
-		+ " mais tu n'es pas encore enregistré.e pour avoir ton solde. "\
-		+ "Tu peux t'enregistrer avec la commande :\n/register BadgeID Nom Prénom"
-
-	update.message.reply_text(message, quote=False)
-
 def register(bot, update):
 	message = ""
 	log = "REGISTER : {" + str(update.message.from_user.id) + ", "\
@@ -140,12 +128,10 @@ def register(bot, update):
 				+ ", fait un effort ! Usage : /register IdBadge Nom Prénom"
 				log += str(update.message.text)
 			else:
-
 				error = new_user(update.message.from_user.id, badge_id, badge_name)
 
-				print(error)
-
 				if(error == 0):
+					update_balance(update.message.from_user.id)
 					message = "Bien joué " + update.message.from_user.first_name\
 					+ " ! Tu es bien enregistré.e en base. Tu peux désormais "\
 					+ " afficher ton solde avec la commande /money"
@@ -217,7 +203,6 @@ def main():
 	dp.add_handler(CommandHandler("cepafo", kaamelott))
 	dp.add_handler(CommandHandler("menu", display_menu))
 	dp.add_handler(CommandHandler("money", display_balance))
-	dp.add_handler(CommandHandler("update", force_update))
 	dp.add_handler(CommandHandler("register", register))
 	dp.add_handler(CommandHandler("forgetme", deregister))
 
