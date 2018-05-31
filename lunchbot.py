@@ -33,10 +33,13 @@ Pour t'enregistrer et consulter ton solde tu dois m'envoyer :
 Tu trouveras ton ID de badge, ton nom et ton prénom, en haut d'un ticket de \
 caisse du restaurant, à coté de la mention 'Badge'.
 Tu pourras alors me demander ton solde restant avec /money\nBon Appétit !\n
-PS : En utilisant Franklin, tu accèptes que tes données personnelles soient \
-stockées par le service :)
-PPS : Si tu veux supprimer tes données personnelles, tu peux le faire avec \
-/forgetme. Mais attention je ne pourrais plus t'indiquer ton solde !
+En utilisant Franklin, tu accèptes que tes données personnelles soient \
+stockées par le service :) Si tu veux supprimer tes données personnelles, \
+tu peux le faire avec /forgetme. Mais attention je ne pourrais plus t'indiquer \
+ton solde !
+
+PS : Pour toute question ou signalement de bogue tu peux t'adresser à @PercevalSA
+https://github.com/PercevalSA/lunch-bot
 """
 
 # Bot command handlers
