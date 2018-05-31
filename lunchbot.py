@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 #
 
+import json
 import logging
-from random import choice
-from flantier import citations
 import franklin
 from dbconnector import *
+from random import choice
+from telegram import ChatAction
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 # Enable logging
@@ -14,7 +15,9 @@ logging.basicConfig(level=logging.INFO,
 	format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-handler = logging.FileHandler('franklin.log')
+handler = logging.FileHandler('lunchbot.log')
+formatter = logging.Formatter('%(asctime)s - %(message)s')
+handler.setFormatter(formatter)
 handler.setLevel(logging.INFO)
 logger.addHandler(handler)
 
@@ -41,14 +44,43 @@ PPS : Si tu veux supprimer tes données personnelles, tu peux le faire avec \
 def welcome(bot, update):
 	update.message.reply_text(welcome_message, quote=False)
 
-def hello(bot, update):
-	update.message.reply_text(text=choice(citations), quote=False)
+	log = "START : {"\
+	+ str(update.message.from_user.id) + ", "\
+	+ str(update.message.from_user.username) + "}"
+	logger.info(log)
+
+def hello(bot, update, sounds_path="kaamelott-soundboard/sounds/"):
+	sounds_list = "sounds.json"
+	sounds = json.load(open(sounds_path + sounds_list, 'r'))
+	sound = choice(sounds)
+	# ['character', 'episode', 'file', 'title']
+
+	audio_file = sounds_path + sound['file']
+
+	bot.send_chat_action(chat_id=update.message.from_user.id, 
+		action=ChatAction.UPLOAD_AUDIO, timeout=30)
+	bot.send_voice(chat_id=update.message.from_user.id,
+		voice=open(audio_file, 'rb'), caption=sound['character'], timeout=30)
+
+	update.message.reply_text(text=sound['title'], quote=False)
+
+def ouiches(bot, update):
+	sounds_path = "ouich.es/sounds/"
+	hello(bot, update, sounds_path)
+
+def kaamelott(bot, update):
+	sounds_path = "kaamelott-soundboard/sounds/"
+	hello(bot, update, sounds_path)
 
 def display_menu(bot, update):
 	update.message.reply_text(franklin.get_menu(), quote=False)
 
-def display_balance(bot, update):
+	log = "MENU : {"\
+	+ str(update.message.from_user.id) + ", "\
+	+ str(update.message.from_user.username) + "}"
+	logger.info(log)
 
+def display_balance(bot, update):
 	money, date = get_balance(update.message.from_user.id)
 
 	if(money != -1):
@@ -59,16 +91,12 @@ def display_balance(bot, update):
 		+ " mais tu n'es pas encore enregistré.e pour avoir ton solde. "\
 		+ "Tu peux t'enregistrer avec la commande :\n/register BadgeID Nom Prénom"
 
-	# TGID TGNAME FID FNAME
 	log = "GET BALANCE : {"\
 	+ str(update.message.from_user.id) + ", "\
 	+ str(update.message.from_user.username) + ", "\
 	+ str(money) + ", "\
 	+ str(date) + "}"
 	logger.info(log)
-
-#		message = "Désolé " + update.message.from_user.first_name\
-#		+ ", impossible de récupérer ton solde..."
 
 	update.message.reply_text(message, quote=False)
 
@@ -82,23 +110,11 @@ def badge_split(message):
 		name = ' '.join(badge[2:])
 		return card,name
 
-def force_update(bot, update):
-	message = ""
-	if(get_user(update.message.from_user.id)):
-		message = "Ton solde a été mis à jour"
-		update_balance(update.message.from_user.id)
-	else:
-		message = "Désolé " + update.message.from_user.first_name\
-		+ " mais tu n'es pas encore enregistré.e pour avoir ton solde. "\
-		+ "Tu peux t'enregistrer avec la commande :\n/register BadgeID Nom Prénom"
-
-	update.message.reply_text(message, quote=False)
-
 def register(bot, update):
 	message = ""
 	log = "REGISTER : {" + str(update.message.from_user.id) + ", "\
 	+ str(update.message.from_user.username) + ", "
-	
+
 	if(get_user(update.message.from_user.id)):
 		message = "Arrête " + update.message.from_user.first_name\
 		+ ", tu t'es déjà enregistré.e pour avoir ton solde."
@@ -106,18 +122,16 @@ def register(bot, update):
 	else:
 			badge_id, badge_name = badge_split(update.message.text)
 			log += str(badge_id) + ", " + str(badge_name) + ", "
-			
+
 			if(badge_id == 0 and badge_name == 0):
 				message = "Enfin " + update.message.from_user.first_name\
 				+ ", fait un effort ! Usage : /register IdBadge Nom Prénom"
 				log += str(update.message.text)
 			else:
-
 				error = new_user(update.message.from_user.id, badge_id, badge_name)
 
-				print(error)
-
 				if(error == 0):
+					update_balance(update.message.from_user.id)
 					message = "Bien joué " + update.message.from_user.first_name\
 					+ " ! Tu es bien enregistré.e en base. Tu peux désormais "\
 					+ " afficher ton solde avec la commande /money"
@@ -139,20 +153,17 @@ def register(bot, update):
 def deregister(bot, update):
 	message = ""
 
-	# TGID TGNAME FID FNAME
 	log = "DEREGISTER : {"\
 	+ str(update.message.from_user.id)\
 	+ ", " + str(update.message.from_user.username)
 
 	if(delete_user(update.message.from_user.id)):
 		log += " SUCCESS" 
-		message = "Les identifiants de " + update.message.from_user.first_name\
-		+ " ont été supprimés de la base."
+		message = "Tes identifiants ont bien été supprimés de la base."
 	else:
 		message = "Impossible de supprimer ton compte. Peut-être que tu n'existes pas / plus"
 		log += " FAIL" 
 
-	# TGID TGNAME FID FNAME
 	log += "}"
 	logger.info(log)
 
@@ -188,9 +199,10 @@ def main():
 	# on different commands - answer in Telegram
 	dp.add_handler(CommandHandler("start", welcome))
 	dp.add_handler(CommandHandler("bonjour", hello))
+	dp.add_handler(CommandHandler("ouiches", ouiches))
+	dp.add_handler(CommandHandler("cepafo", kaamelott))
 	dp.add_handler(CommandHandler("menu", display_menu))
 	dp.add_handler(CommandHandler("money", display_balance))
-	dp.add_handler(CommandHandler("update", force_update))
 	dp.add_handler(CommandHandler("register", register))
 	dp.add_handler(CommandHandler("forgetme", deregister))
 

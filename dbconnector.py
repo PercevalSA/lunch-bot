@@ -173,7 +173,6 @@ def db_init():
 	except Exception as e:
 		print("Erreur : " + e)
 		db.rollback()
-	# raise e
 	finally:
 		db.close()
 

@@ -1,0 +1,6 @@
+[submodule "kaamelott-soundboard"]
+	path = kaamelott-soundboard
+	url = https://github.com/2ec0b4/kaamelott-soundboard.git
+[submodule "ouich.es"]
+	path = ouich.es
+	url = https://github.com/PercevalSA/ouich.es.git
