@@ -36,8 +36,9 @@ Tu pourras alors me demander ton solde restant avec /money\nBon Appétit !\n
 En utilisant Franklin, tu accèptes que tes données personnelles soient \
 stockées par le service :) Si tu veux supprimer tes données personnelles, \
 tu peux le faire avec /forgetme. Mais attention je ne pourrais plus t'indiquer \
-ton solde !
-
+ton solde !\n
+Eurest met à jour tous les soldes une seule fois par jour, le matin. Ne sois \
+pas surpris si ton solde n'est pas à jour immédiatement après avoir rechargé.\n
 PS : Pour toute question ou signalement de bogue tu peux t'adresser à @PercevalSA
 https://github.com/PercevalSA/lunch-bot
 """
