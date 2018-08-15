@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
+# Used to manually notify users (especially for functionalities updates)
 
 import telegram
 from lunchbot import TOKEN

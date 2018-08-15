@@ -36,35 +36,13 @@ pip3 install --upgrade requests bs4 python-telegram-bot # installe les dépendan
 de votre bot dans la variable `TOKEN`. Vous pouvez en demander un auprès du
 [botfather](http://telegram.me/botfather).
 
-* Ajoutez une tâche planifiée pour la mise à jour des soldes avec
-`sudo crontab -u tgbot -e`
-et collez le texte suivant :
-```
-0 8,16 * * * /usr/bin/python3 /home/tgbot/lunch-bot/dbconnector.py
-```
+* Ajoutez les service du bot au système pour la mise à jour des soldes avec
+`sudo cp service/* /etc/systemd/system/`
 
-* Ajoutez le service du bot au système avec
-`sudo nano /etc/systemd/system/lunchbot.service`
-et collez le texte suivant :
-```
-[Unit]
-Description=Telegram bot that serves lunch menu and personnal balance
-After=network.target
-
-[Service]
-User=tgbot
-Group=tgbot
-WorkingDirectory=/home/tgbot/lunch-bot
-ExecStart=/usr/bin/python3 /home/tgbot/lunch-bot/lunchbot.py
-
-[Install]
-WantedBy=multi-user.target
-```
-
-* Activez le service
+* Activez les services
 ```bash
-sudo systemctl enable lunchbot
-sudo systemctl start lunchbot
+sudo systemctl enable lunchbot lunchbot-db-update lunchbot-backup
+sudo systemctl start lunchbot lunchbot-db-update lunchbot-backup
 ```
 
 * Enjoy !
@@ -74,13 +52,15 @@ https://github.com/python-telegram-bot/python-telegram-bot/wiki/Webhooks
 
 ## Commandes
 
-* `/money` : consulter son solde
-* `/menu` : afficher le menu du jour
+* `/money` consulter son solde
+* `/menu` afficher le menu du jour
 * `/register BadgeID NOM Prénom` s'enregistrer auprès du bot pour consulter
 son solde (le BadgeID se trouve sur les tickets de caisse)
-* `/forgetme` : supprimer ses identifiants de la base
-* `/update` : forcer la mise à jour du solde
-* `/bonjour` : Habile !
+* `/forgetme` supprimer ses identifiants de la base
+* `/update` forcer la mise à jour du solde
+* `/bonjour` Habile !
+* `/cepafo` C'est pas faux !
+* `/ouiches` Georges Abitbol
 
 ## Extra
 

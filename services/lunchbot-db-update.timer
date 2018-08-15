@@ -1,0 +1,9 @@
+[Unit]
+Description=Update Franklin lunchbot's database
+
+[Timer]
+OnCalendar=Mon,Tue,Wen,Thu,Fri *-*-* 8,16:00
+Unit=lunchbot-db-update.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,10 @@
+[Unit]
+Description=Backup Franklin lunchbot's logs and database every week
+
+[Timer]
+OnBootSec=1h
+OnUnitActiveSec=1w
+Unit=lunchbot-backup.service
+
+[Install]
+WantedBy=timers.target

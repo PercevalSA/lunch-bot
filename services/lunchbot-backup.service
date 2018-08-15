@@ -1,0 +1,13 @@
+[Unit]
+Description=Backup Franklin lunchbot's logs and database
+After=network.target
+
+[Service]
+User=tgbot
+Group=tgbot
+Type=oneshot
+ExecStart=/bin/cp /home/tgbot/lunch-bot/users.db /home/tgbot/lunch-bot/users.db.wbak 
+ExecStart=/bin/cp /home/tgbot/lunch-bot/lunchbot.log /home/tgbot/lunch-bot/lunchbot.log.wbak 
+
+[Install]
+WantedBy=multi-user.target
