@@ -57,7 +57,7 @@ https://github.com/python-telegram-bot/python-telegram-bot/wiki/Webhooks
 * `/register BadgeID NOM Prénom` s'enregistrer auprès du bot pour consulter
 son solde (le BadgeID se trouve sur les tickets de caisse)
 * `/forgetme` supprimer ses identifiants de la base
-* `/notification` recevoir le menu et son solde tous les jours à 11h45
+* `/notification` recevoir le menu et son solde tous les jours à 11h50
 * `/bonjour` Habile !
 * `/cepafo` C'est pas faux !
 * `/ouiches` Georges Abitbol
