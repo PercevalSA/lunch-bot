@@ -191,8 +191,7 @@ def subscribe(bot, update):
 	+ ", " + str(update.message.from_user.username)
 
 	if(get_user(update.message.from_user.id)):
-		printf("plop subscribed")
-		# good
+		pass
 	else:
 		message = "Désolé, impossible de créer une alarme car tu n'es pas enregistré.e. "\
 		+ "Tu peux le faire avec /register IdBadge Nom Prénom"
@@ -238,7 +237,7 @@ def notification_subscribe_both(bot, update):
 	message = ""
 	# check user in database
 	if(get_user(update.message.from_user.id)):
-		message = "Vous recevrez le menu et votre solde tous les jours de la semaine à 11h50 :)"
+		message = "Tu recevras le menu et ton solde tous les jours de la semaine à 11h50 :)"
 		set_notification(update.message.from_user.id, menu=True, sold=True)
 	else:
 		message = "Désolé " + update.message.from_user.first_name\
@@ -247,11 +246,15 @@ def notification_subscribe_both(bot, update):
 
 	update.message.reply_text(message, quote=False, reply_markup=ReplyKeyboardRemove())
 
+	log = "NOTIFICATION : {" + str(update.message.from_user.id) + ", "\
+	+ str(update.message.from_user.username) + " : 3}"
+	logger.info(log)
+
 def notification_subscribe_balance(bot, update):
 	message = ""
 	# check user in database
 	if(get_user(update.message.from_user.id)):
-		message = "Tu recevras votre solde tous les jours de la semaine à 11h50 :)"
+		message = "Tu recevras ton solde tous les jours de la semaine à 11h50 :)"
 		set_notification(update.message.from_user.id, menu=False, sold=True)
 	else:
 		message = "Désolé " + update.message.from_user.first_name\
@@ -260,16 +263,27 @@ def notification_subscribe_balance(bot, update):
 
 	update.message.reply_text(message, quote=False, reply_markup=ReplyKeyboardRemove())
 
+	log = "NOTIFICATION : {" + str(update.message.from_user.id) + ", "\
+	+ str(update.message.from_user.username) + " : 2}"
+	logger.info(log)
+
 def notification_subscribe_menu(bot, update):
 	message = "Tu recevras le menu tous les jours de la semaine à 11h50 :)"
 	set_notification(update.message.from_user.id, menu=True, sold=False)
 	update.message.reply_text(message, quote=False, reply_markup=ReplyKeyboardRemove())
+
+	log = "NOTIFICATION : {" + str(update.message.from_user.id) + ", "\
+	+ str(update.message.from_user.username) + " : 1}"
+	logger.info(log)
 
 def notification_subscribe_none(bot, update):
 	message = "Tu ne recevras aucune notification :)"
 	set_notification(update.message.from_user.id, menu=False, sold=False)
 	update.message.reply_text(message, quote=False, reply_markup=ReplyKeyboardRemove())
 
+	log = "NOTIFICATION : {" + str(update.message.from_user.id) + ", "\
+	+ str(update.message.from_user.username) + " : 0}"
+	logger.info(log)
 
 ###################
 # COMMANDS ERRORS #

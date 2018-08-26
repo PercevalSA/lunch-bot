@@ -113,7 +113,8 @@ def get_balance(tg_id):
 	balance = cursor.fetchone()
 	db.close()
 
-	# return None if no result
+	# return a tuple of balance and last update date
+	# return a tuple of None None if no result
 	if(balance):
 		return balance
 	else:
@@ -142,15 +143,24 @@ def update_all_balances():
 
 #
 # NOTIFICATIONS
+"""
+Notification mode are stored as an integer but works as a boolean array 
+Each boolean is associated with a notification type as following:
+sold|menu|value
+  0 |  0 |  0
+  0 |  1 |  1
+  1 |  0 |  2
+  1 |  1 |  3
+"""
 def set_notification(tg_id, menu=False, sold=False):
 	notification = 0
-	if(menu == False and sold == False):
+	if(sold == False and menu == False):
 		notification = 0
-	elif(menu == False and sold == True):
+	elif(sold == False and menu == True ):
 		notification = 1
-	elif(menu == True and sold == False):
+	elif(sold == True and menu == False):
 		notification = 2
-	elif(menu == True and sold == True):
+	elif(sold == True and menu == True):
 		notification = 3
 	else:
 		printf("notification combination impossibru")
@@ -193,9 +203,6 @@ def db_init():
 			balance REAL,                     # current balance 
 			last_update TEXT,                 # time of the balance's list update
 			notification INTEGER)             # notification type 
-			# Notification mode are stored as an integer but works as a boolean 
-			# array (as unix rights). Each boolean is associated with a 
-			# notification type as following: [sold, menu]
 		""")
 
 		db.commit()
