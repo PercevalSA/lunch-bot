@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
+# Inteface with Eurest website
 
-import requests
+import datetime, requests
 from bs4 import BeautifulSoup
-import datetime
 
 def check_user(card_id, name):
 	url = "https://www.e-chargement.com/identif_badge.asp"
@@ -27,7 +27,7 @@ def get_money(card_id, name):
 	if response.status_code == 200:
 		soup = BeautifulSoup(response.text, 'html.parser')
 		infos = soup.find_all("td", { "class" : "bold" }) 
-		money = float(infos[1].text[:-3].replace(",",".")) # -3 to delete €
+		money = float(infos[1].text[:-3].replace(",",".")) # -3 to delete '€'
 		date = infos[2].text
 
 		return money, date
@@ -37,6 +37,7 @@ def get_money(card_id, name):
 
 def get_menu():
 
+	# needed urls
 	cookie_url  = "http://www.tourfranklin.eurest.fr"
 	menu_url    = "http://www.tourfranklin.eurest.fr/ajaxWidgetMenu.aspx"
 	# list of restaurants : tuple (name, id)

@@ -1,0 +1,9 @@
+[Unit]
+Description=Backup Franklin lunchbot's logs and database every week
+
+[Timer]
+OnCalendar=Mon,Tue,Wen,Thu,Fri *-*-* 11:50:00
+Unit=lunchbot-notify.service
+
+[Install]
+WantedBy=timers.target

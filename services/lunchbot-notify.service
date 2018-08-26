@@ -1,0 +1,13 @@
+[Unit]
+Description=Telegram bot that serves lunch menu and personnal balance
+After=network.target
+
+[Service]
+User=tgbot
+Group=tgbot
+Type=simple
+WorkingDirectory=/home/tgbot/lunch-bot
+ExecStart=/usr/bin/python3 /home/tgbot/lunch-bot/notify.py
+
+[Install]
+WantedBy=multi-user.target
