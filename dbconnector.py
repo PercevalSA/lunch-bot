@@ -197,12 +197,12 @@ def db_init():
 		# users table
 		cursor.execute("""
 			CREATE TABLE IF NOT EXISTS users (
-			tg_id INTEGER PRIMARY KEY UNIQUE, # Telegram ID
-			eurest_id INTEGER,                # Eurest ID
-			eurest_name TEXT,                 # Eurest name
-			balance REAL,                     # current balance 
-			last_update TEXT,                 # time of the balance's list update
-			notification INTEGER)             # notification type 
+			tg_id INTEGER PRIMARY KEY UNIQUE,
+			eurest_id INTEGER,
+			eurest_name TEXT,
+			balance REAL,
+			last_update TEXT,
+			notification INTEGER)
 		""")
 
 		db.commit()
