@@ -7,7 +7,7 @@ User=tgbot
 Group=tgbot
 Type=simple
 WorkingDirectory=/home/tgbot/lunch-bot
-ExecStart=/usr/bin/python3 /home/tgbot/lunch-bot/notify.py
+ExecStart=/usr/bin/pypy /home/tgbot/lunch-bot/notify.py
 
 [Install]
 WantedBy=multi-user.target

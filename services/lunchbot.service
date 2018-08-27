@@ -6,7 +6,7 @@ After=network.target
 User=tgbot
 Group=tgbot
 WorkingDirectory=/home/tgbot/lunch-bot
-ExecStart=/usr/bin/python3 /home/tgbot/lunch-bot/lunchbot.py
+ExecStart=/usr/bin/pypy /home/tgbot/lunch-bot/lunchbot.py
 
 [Install]
 WantedBy=multi-user.target

@@ -27,6 +27,7 @@ sudo adduser tgbot # créer un utilisateur pour le bot
 * Installez lunchbot :
 ```bash
 sudo -s tgbot && cd /home/tgbot
+sudo apt install pypy
 git clone --recurse-submodules https://github.com/PercevalSA/lunch-bot.git # clone le dépôt
 pip3 install --upgrade bitarray bs4 json python-telegram-bot requests # installe les dépendances
 ```
