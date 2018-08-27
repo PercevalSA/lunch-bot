@@ -10,8 +10,9 @@ import franklin
 from dbconnector import *
 
 from telegram import ChatAction
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext.dispatcher import run_async
 
 ###########
 # LOGGING #
@@ -54,6 +55,7 @@ https://github.com/PercevalSA/lunch-bot
 # BOT COMMANDS #
 ################
 
+@run_async
 def welcome(bot, update):
 	update.message.reply_text(welcome_message, quote=False)
 
@@ -62,6 +64,7 @@ def welcome(bot, update):
 	+ str(update.message.from_user.username) + "}"
 	logger.info(log)
 
+@run_async
 def hello(bot, update, sounds_path="kaamelott-soundboard/sounds/"):
 	sounds_list = "sounds.json"
 	sounds = json.load(open(sounds_path + sounds_list, 'r'))
@@ -77,14 +80,17 @@ def hello(bot, update, sounds_path="kaamelott-soundboard/sounds/"):
 
 	update.message.reply_text(text=sound['title'], quote=False)
 
+@run_async
 def ouiches(bot, update):
 	sounds_path = "ouich.es/sounds/"
 	hello(bot, update, sounds_path)
 
+@run_async
 def kaamelott(bot, update):
 	sounds_path = "kaamelott-soundboard/sounds/"
 	hello(bot, update, sounds_path)
 
+@run_async
 def display_menu(bot, update):
 	update.message.reply_text(franklin.get_menu(), quote=False)
 
@@ -93,6 +99,7 @@ def display_menu(bot, update):
 	+ str(update.message.from_user.username) + "}"
 	logger.info(log)
 
+@run_async
 def display_balance(bot, update):
 	money, date = get_balance(update.message.from_user.id)
 
@@ -123,6 +130,7 @@ def badge_split(message):
 		name = ' '.join(badge[2:])
 		return card,name
 
+@run_async
 def register(bot, update):
 	message = ""
 	log = "REGISTER : {" + str(update.message.from_user.id) + ", "\
@@ -163,6 +171,7 @@ def register(bot, update):
 
 	update.message.reply_text(message, quote=False)
 
+@run_async
 def deregister(bot, update):
 	message = ""
 
@@ -176,25 +185,6 @@ def deregister(bot, update):
 	else:
 		message = "Impossible de supprimer ton compte. Peut-être que tu n'existes pas / plus"
 		log += " FAIL" 
-
-	log += "}"
-	logger.info(log)
-
-	update.message.reply_text(message, quote=False)
-
-def subscribe(bot, update):
-	message = ""
-
-	# TGID TGNAME FID FNAME
-	log = "SUBSCRIBE : {"\
-	+ str(update.message.from_user.id)\
-	+ ", " + str(update.message.from_user.username)
-
-	if(get_user(update.message.from_user.id)):
-		pass
-	else:
-		message = "Désolé, impossible de créer une alarme car tu n'es pas enregistré.e. "\
-		+ "Tu peux le faire avec /register IdBadge Nom Prénom"
 
 	log += "}"
 	logger.info(log)
@@ -230,9 +220,11 @@ def build_notifications_keyboard(bot, update):
 
 	bot.send_message(chat_id=update.message.chat_id, text=message, reply_markup=reply_keyboard)
 
+@run_async
 def notification_subscribe(bot, update):
 	build_notifications_keyboard(bot, update)
 
+@run_async
 def notification_subscribe_both(bot, update):
 	message = ""
 	# check user in database
@@ -250,6 +242,7 @@ def notification_subscribe_both(bot, update):
 	+ str(update.message.from_user.username) + " : 3}"
 	logger.info(log)
 
+@run_async
 def notification_subscribe_balance(bot, update):
 	message = ""
 	# check user in database
@@ -267,6 +260,7 @@ def notification_subscribe_balance(bot, update):
 	+ str(update.message.from_user.username) + " : 2}"
 	logger.info(log)
 
+@run_async
 def notification_subscribe_menu(bot, update):
 	message = "Tu recevras le menu tous les jours de la semaine à 11h50 :)"
 	set_notification(update.message.from_user.id, menu=True, sold=False)
@@ -276,6 +270,7 @@ def notification_subscribe_menu(bot, update):
 	+ str(update.message.from_user.username) + " : 1}"
 	logger.info(log)
 
+@run_async
 def notification_subscribe_none(bot, update):
 	message = "Tu ne recevras aucune notification :)"
 	set_notification(update.message.from_user.id, menu=False, sold=False)
@@ -285,10 +280,12 @@ def notification_subscribe_none(bot, update):
 	+ str(update.message.from_user.username) + " : 0}"
 	logger.info(log)
 
+
 ###################
 # COMMANDS ERRORS #
 ###################
 
+@run_async
 def unknown_command(bot, update):
 	message = "Désolé " + update.message.from_user.first_name\
 	+ ", je n'ai pas compris. Je réponds aux commandes suivantes : "\
