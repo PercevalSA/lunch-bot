@@ -1,0 +1,9 @@
+[Unit]
+Description=Notify Franklin lunchbot's users every week day at 11h50
+
+[Timer]
+OnCalendar=Mon,Tue,Wed,Thu,Fri *-*-* 11:50:00
+Unit=lunchbot-notify.service
+
+[Install]
+WantedBy=timers.target

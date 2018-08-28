@@ -1,8 +1,8 @@
 [Unit]
-Description=Update Franklin lunchbot's database
+Description=Update Franklin lunchbot's database every day at 8h and 16h
 
 [Timer]
-OnCalendar=Mon,Tue,Wen,Thu,Fri *-*-* 8,16:00
+OnCalendar=Mon,Tue,Wed,Thu,Fri *-*-* 8,16:00
 Unit=lunchbot-db-update.service
 
 [Install]

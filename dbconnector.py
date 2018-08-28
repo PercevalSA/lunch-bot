@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
+# Database connector
 
 import sqlite3
 import franklin
 
-# use absolute path for update cron
+# use absolute path for update timer
 DB_FILE = "/home/tgbot/lunch-bot/users.db"
 
 #
@@ -26,10 +27,8 @@ def new_user(tg_id, eurest_id, eurest_name):
 		# Insertion in database
 		db = sqlite3.connect(DB_FILE)
 		cursor = db.cursor()
-		cursor.execute("INSERT INTO users(tg_id, eurest_id, eurest_name) VALUES (?, ?, ?)",
-			(TG_ID, EUREST_ID, eurest_name))
-		cursor.execute("INSERT INTO balances(tg_id, balance) VALUES (?, ?)",
-			(TG_ID, 0))
+		cursor.execute("INSERT INTO users(tg_id, eurest_id, eurest_name, balance)\
+			VALUES (?, ?, ?, ?)", (TG_ID, EUREST_ID, eurest_name, 0))
 		db.commit()
 		db.close()
 		return 0
@@ -40,11 +39,15 @@ def new_user(tg_id, eurest_id, eurest_name):
 
 
 def get_user(tg_id, eurest=False):
+
+	# columns to return
 	if(eurest):
 		columns = "eurest_id, eurest_name"
 	else:
 		columns = "*"
 
+	# database request
+	user = None
 	try:
 		db = sqlite3.connect(DB_FILE)
 		cursor = db.cursor()
@@ -53,20 +56,21 @@ def get_user(tg_id, eurest=False):
 
 		user = cursor.fetchone()
 	except Exception as e:
-		print("Erreur : " + e)
+		print("Erreur : " + str(e)) # str() : quick fix
 	finally:
 		db.close()
 
 	return user
 
-
-# get all users tg id
-# if eurest = true give wole table 
-def get_users(eurest=False):
-	if(eurest):
-		columns = "*"
-	else:
+# get all users
+# return type (telegram) : 
+#	true : telegram IDs only 
+#	false : the whole table 
+def get_users(telegram=True):
+	if(telegram):
 		columns = "tg_id"
+	else:
+		columns = "*"
 
 	db = sqlite3.connect(DB_FILE)
 	cursor = db.cursor()
@@ -78,7 +82,6 @@ def get_users(eurest=False):
 
 	return users
 
-
 def delete_user(tg_id):
 	success = True
 
@@ -87,7 +90,6 @@ def delete_user(tg_id):
 		cursor = db.cursor()
 
 		cursor.execute("DELETE FROM users WHERE tg_id=?", (tg_id,))
-		cursor.execute("DELETE FROM balances WHERE tg_id=?", (tg_id,))
 
 		db.commit()
 
@@ -102,34 +104,34 @@ def delete_user(tg_id):
 #
 # BALANCES
 def get_balance(tg_id):
+
 	db = sqlite3.connect(DB_FILE)
 	cursor = db.cursor()
 
-	if(get_user(tg_id)):
-		cursor.execute("SELECT balance, last_update FROM balances WHERE tg_id=?", (tg_id,))
-		balance = cursor.fetchone()
-		db.close()
+	cursor.execute("SELECT balance, last_update FROM users WHERE tg_id=?", (tg_id,))
+
+	balance = cursor.fetchone()
+	db.close()
+
+	# return a tuple of balance and last update date
+	# return a tuple of None None if no result
+	if(balance):
 		return balance
 	else:
-		return -1,0
-
+		return None, None
 
 def update_balance(tg_id):
 	f_id, f_name = get_user(tg_id, eurest=True)
 	money, date = franklin.get_money(f_id, f_name)
 
-	print(money)
-	print(date)
-
 	db = sqlite3.connect(DB_FILE)
 	cursor = db.cursor()
 
-	cursor.execute("UPDATE balances SET balance = ?, last_update = ? WHERE tg_id = ?",
+	cursor.execute("UPDATE users SET balance = ?, last_update = ? WHERE tg_id = ?",
 		(money, date, tg_id))
 
 	db.commit()
 	db.close()
-
 
 #
 # Update all balances from all users
@@ -137,9 +139,53 @@ def update_balance(tg_id):
 def update_all_balances():
 	users = get_users()
 	for user in users:
-		print(user)
 		update_balance(user[0])
 
+#
+# NOTIFICATIONS
+"""
+Notification mode are stored as an integer but works as a boolean array 
+Each boolean is associated with a notification type as following:
+sold|menu|value
+  0 |  0 |  0
+  0 |  1 |  1
+  1 |  0 |  2
+  1 |  1 |  3
+"""
+def set_notification(tg_id, menu=False, sold=False):
+	notification = 0
+	if(sold == False and menu == False):
+		notification = 0
+	elif(sold == False and menu == True ):
+		notification = 1
+	elif(sold == True and menu == False):
+		notification = 2
+	elif(sold == True and menu == True):
+		notification = 3
+	else:
+		printf("notification combination impossibru")
+
+	# Insertion in database
+	db = sqlite3.connect(DB_FILE)
+	cursor = db.cursor()
+
+	cursor.execute("UPDATE users SET notification = ? WHERE tg_id = ?",
+		(notification, tg_id))
+
+	db.commit()
+	db.close()
+	return 0
+
+def get_notifications():
+	db = sqlite3.connect(DB_FILE)
+	cursor = db.cursor()
+
+	cursor.execute("SELECT tg_id, notification FROM users")
+
+	notification = cursor.fetchall()
+	db.close()
+
+	return notification
 
 #
 # Database creation
@@ -153,18 +199,11 @@ def db_init():
 			CREATE TABLE IF NOT EXISTS users (
 			tg_id INTEGER PRIMARY KEY UNIQUE,
 			eurest_id INTEGER,
-			eurest_name TEXT)
-		""")
-
-		# balances table
-		# SQLite doesn't support foreign key by default
-		cursor.execute("""
-			CREATE TABLE IF NOT EXISTS balances (
-			tg_id INTEGER PRIMARY KEY UNIQUE,
+			eurest_name TEXT,
 			balance REAL,
-			last_update TEXT)
+			last_update TEXT,
+			notification INTEGER)
 		""")
-		# last_update DATE)
 
 		db.commit()
 

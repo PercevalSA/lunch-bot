@@ -9,7 +9,7 @@ carte ainsi que le menu du restaurant de la tour Franklin à la défense :
 ## Quick start
 
 * Clonez le dépôt : `git clone --recurse-submodules https://github.com/PercevalSA/lunch-bot.git`
-* Installez les dépendances : `pip3 install --upgrade requests bs4 python-telegram-bot`
+* Installez les dépendances : `pip3 install --upgrade bitarray bs4 json python-telegram-bot requests`
 * Modifiez le fichier `lunchbot.py` pour y jouter le
 [jeton](https://core.telegram.org/bots/api#authorizing-your-bot)
 de votre bot dans la variable `TOKEN`. Vous pouvez en demander un auprès du
@@ -28,7 +28,7 @@ sudo adduser tgbot # créer un utilisateur pour le bot
 ```bash
 sudo -s tgbot && cd /home/tgbot
 git clone --recurse-submodules https://github.com/PercevalSA/lunch-bot.git # clone le dépôt
-pip3 install --upgrade requests bs4 python-telegram-bot # installe les dépendances
+pip3 install --upgrade bitarray bs4 json python-telegram-bot requests # installe les dépendances
 ```
 
 * Modifiez le fichier `lunchbot.py` pour y jouter le
@@ -41,8 +41,8 @@ de votre bot dans la variable `TOKEN`. Vous pouvez en demander un auprès du
 
 * Activez les services
 ```bash
-sudo systemctl enable lunchbot lunchbot-db-update lunchbot-backup
-sudo systemctl start lunchbot lunchbot-db-update lunchbot-backup
+sudo systemctl enable lunchbot lunchbot-db-update lunchbot-backup lunchbot-notify
+sudo systemctl start lunchbot lunchbot-db-update lunchbot-backup lunchbot-notify
 ```
 
 * Enjoy !
@@ -57,7 +57,7 @@ https://github.com/python-telegram-bot/python-telegram-bot/wiki/Webhooks
 * `/register BadgeID NOM Prénom` s'enregistrer auprès du bot pour consulter
 son solde (le BadgeID se trouve sur les tickets de caisse)
 * `/forgetme` supprimer ses identifiants de la base
-* `/update` forcer la mise à jour du solde
+* `/notification` recevoir le menu et son solde tous les jours à 11h50
 * `/bonjour` Habile !
 * `/cepafo` C'est pas faux !
 * `/ouiches` Georges Abitbol
