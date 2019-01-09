@@ -72,3 +72,11 @@ Utile notemment pour annoncer les mises à jours ou maintenances aux utilisateur
 * Gestion des statistiques de consommation
 * Gestion du menu des autres jours de la semaine
 * Ajout d'alertes sur le solde à partir d'un certain seuil
+* Compléter le readme avec toutes les commandes
+* Exportation des données directement (GDPR)
+* Message non différencié en cas de suppression compte non existant 
+* Supprimer les logs lors de la suppression de compte
+* Migrer les logs dans la database
+* Utiliser les points médian pour l'écriture inclusive
+* Mise en forme du menu : gras sur le titre
+* Donner la possiblilité de choisir l'heure de la notif
